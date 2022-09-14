@@ -1,0 +1,126 @@
+﻿<!-- Sizmek Multi Click, 2018-04-24 -->
+<!DOCTYPE html>
+<html>
+   <head>
+   <title>$TITLE</title>
+   <meta charset="UTF-8">
+   <meta name="ad.size" content="width=600,height=240">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+   <script type="text/javascript" src="https://secure-ds.serving-sys.com/BurstingScript/EBLoader.js"></script>
+   <script type="text/javascript" src="https://secure-ds.serving-sys.com/BurstingcachedScripts/libraries/createjs/createjs-2015.11.26.min.js"></script>
+   <style type="text/css">
+   body { margin:0px; }
+   #$CANVAS_ID { width: $WTpx; height: $HTpx; }
+   </style>
+   $CENTER_STYLE
+   $ANIMATE_CC_SCRIPTS
+   <style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+
+    .banner {
+      width: 100%;
+      min-width: 600px;
+      height: 240px;
+      overflow: hidden;
+      position: relative;
+    }
+    .border {
+      position: absolute;
+      border: 1px #000000 solid;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      overflow: hidden;
+      cursor: pointer;
+    }
+    </style>
+   $SCRIPT_START
+
+   function isLocal(){
+     return /(sizmek\.ru|file\:\/\/\/|localhost|192\.168\.|127\.0\.0\.1)/.test(window.location.href);
+   }
+
+   var szmk;
+   var window_location = window.location.href
+
+   // aliases
+   var click1 = clickthrough1;
+   var click2 = clickthrough2;
+   var click3 = clickthrough3;
+
+   function clickthrough1(){
+      EB.clickthrough();
+      if(isLocal()){
+         console.log('> click');
+      }
+   }
+   
+   function clickthrough2(){
+      EB.clickthrough('click_2');
+      if(isLocal()){
+         console.log('> click_2');
+      }
+   }
+
+   function clickthrough3(){
+      EB.clickthrough('click_3');
+      if(isLocal()){
+         console.log('> click_3');
+      }
+   }
+
+   function initEB() {
+      if (!EB.isInitialized()) {
+         EB.addEventListener(EBG.EventName.EB_INITIALIZED, startAd);
+      } else {
+         startAd();
+      }
+   }
+
+   function startAd() {
+      // szmk = new SizmekFwd(EB);
+      if (typeof init === 'function') {
+         init();
+      }
+   }
+
+   if(isLocal()){
+      console.log(' -- Sizmek Multi Click, 2018-04-24 -- ');
+   }
+
+   var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+   function init() {
+      canvas = document.getElementById("$CANVAS_ID");
+      anim_container = document.getElementById("$ANIM_CONTAINER_ID");
+      dom_overlay_container = document.getElementById("dom_overlay_container");
+      $CREATE_LOADER
+      $LOAD_MANIFEST
+      $PRELOAD_ASSETS
+   }
+   $HANDLE_FILE_LOAD_START 
+      $HANDLE_FILE_LOAD_BODY  
+   $HANDLE_FILE_LOAD_END
+   $HANDLE_COMPLETE_START
+      $CREATE_STAGE   
+      $START_ANIMATION        
+      $RESP_HIDPI
+   $HANDLE_COMPLETE_END
+   $PLAYSOUND
+   $SCRIPT_END
+   </head>
+   <body onload="initEB();">
+      <div id="banner" class="banner" >
+    <div id="border" class="banner border">
+      <div id="$ANIM_CONTAINER_ID" style="background-color:$BG; width:$WTpx; height:$HTpx">
+         <canvas id="$CANVAS_ID" width="$WT" height="$HT" style="position: absolute; display: $CANVAS_DISP; background-color:$BG;"></canvas>
+         <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:$WTpx; height:$HTpx; position: absolute; left: 0px; top: 0px; display: $CANVAS_DISP;"></div>
+      </div>
+   </div>
+</div>
+      $PRELOADER_DIV
+   </body>
+</html>

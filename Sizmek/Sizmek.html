@@ -1,0 +1,103 @@
+﻿<!-- Sizmek, 2018-04-24 -->
+<!DOCTYPE html>
+<html>
+   <head>
+   <title>$TITLE</title>
+   <meta charset="UTF-8">
+   <meta name="ad.size" content="width=$WT,height=$HT">
+   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1"/>
+   <script type="text/javascript" src="https://secure-ds.serving-sys.com/BurstingScript/EBLoader.js"></script>
+   <script type="text/javascript" src="https://secure-ds.serving-sys.com/BurstingcachedScripts/libraries/createjs/createjs-2015.11.26.min.js"></script>
+   <style type="text/css">
+   body { margin:0px; overflow: hidden; }
+   #$CANVAS_ID { cursor: pointer; width: $WTpx; height: $HTpx; }
+   </style>
+   $CENTER_STYLE
+   $ANIMATE_CC_SCRIPTS
+   $SCRIPT_START
+
+   function isLocal(){
+     return /(sizmek\.ru|file\:\/\/\/|localhost|192\.168\.|127\.0\.0\.1)/.test(window.location.href);
+   }
+   
+   var szmk;
+   var window_location = window.location.href
+
+   // aliases
+   var click1 = clickthrough1;
+   var click2 = clickthrough2;
+   var click3 = clickthrough3;
+
+   function clickthrough1(){
+      EB.clickthrough();
+      if(isLocal()){
+         console.log('> click');
+      }
+   }
+   
+   function clickthrough2(){
+      EB.clickthrough('click_2');
+      if(isLocal()){
+         console.log('> click_2');
+      }
+   }
+
+   function clickthrough3(){
+      EB.clickthrough('click_3');
+      if(isLocal()){
+         console.log('> click_3');
+      }
+   }
+
+   function initEB() {
+      if (!EB.isInitialized()) {
+         EB.addEventListener(EBG.EventName.EB_INITIALIZED, startAd);
+      } else {
+         startAd();
+      }
+   }
+
+   function startAd() {
+      // szmk = new SizmekFwd(EB);
+      if (typeof init === 'function') {
+         init();
+      }
+   }
+
+   if(isLocal()){
+      console.log(' -- Sizmek, 2018-04-24 -- ');
+   }
+
+   var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+   function init() {
+      canvas = document.getElementById("$CANVAS_ID");
+      anim_container = document.getElementById("$ANIM_CONTAINER_ID");
+      dom_overlay_container = document.getElementById("dom_overlay_container");
+      $CREATE_LOADER
+      $LOAD_MANIFEST
+      $PRELOAD_ASSETS
+
+      // CLICK //////
+      document.getElementById('$ANIM_CONTAINER_ID').addEventListener('click', clickthrough1);
+      // CLICK //////
+   }
+   $HANDLE_FILE_LOAD_START 
+      $HANDLE_FILE_LOAD_BODY  
+   $HANDLE_FILE_LOAD_END
+   $HANDLE_COMPLETE_START
+      $CREATE_STAGE   
+      $START_ANIMATION        
+      $RESP_HIDPI
+   $HANDLE_COMPLETE_END
+   $PLAYSOUND
+   $SCRIPT_END
+   </head>
+   <body onload="initEB();">
+      <div id="$ANIM_CONTAINER_ID" style="background-color:$BG; width:$WTpx; height:$HTpx">
+         <canvas id="$CANVAS_ID" width="$WT" height="$HT" style="position: absolute; display: $CANVAS_DISP; background-color:$BG;"></canvas>
+         <div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:$WTpx; height:$HTpx; position: absolute; left: 0px; top: 0px; display: $CANVAS_DISP;"></div>
+      </div>
+      $PRELOADER_DIV
+   </body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<!--
+	NOTES:
+	1. All tokens are represented by '$' sign in the template.
+	2. You can write your code only wherever mentioned.
+	3. All occurrences of existing tokens will be replaced by their appropriate values.
+	4. Blank lines will be removed automatically.
+	5. Remove unnecessary comments before creating your template.
+-->
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="authoring-tool" content="Adobe_Animate_CC">
+<meta name="ad.size" content="width=$WT,height=$HT">
+<title>$TITLE</title>
+<!-- write your code here -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+
+//////// ---------------------------------------  INITIAL VALUES  --------------------------------------- /////////
+
+
+const init_border_color = "#000000";
+
+
+
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+$CENTER_STYLE
+$CREATEJS_LIBRARY_SCRIPTS
+$ANIMATE_CC_SCRIPTS
+$SCRIPT_START
+var canvas, stage, exportRoot, anim_container, dom_overlay_container, fnStartAnimation;
+let img_settings;
+function initSettingsScreen () {
+	
+	
+
+	const btn_apply = document.getElementById("continue");
+	const menu = document.getElementById("menu-container");
+	const menu_gif = document.getElementById("gif-settings");
+
+	const option_dithering_alg = document.getElementById("dithering-algorithm");
+	const option_colors = document.getElementById("colors");
+	const option_delay = document.getElementById("delay");
+	const option_loopcount = document.getElementById("loopcount");
+	const option_border_visible = document.getElementById("gif-border");
+	const option_border_settings = document.getElementById("border-settings");
+	const option_border_thickness = document.getElementById("gif-border-thickness");
+	const option_border_color = document.getElementById("gif-border-color");
+
+	const option_extension_gif = document.getElementById("gif");
+	const option_extension_jpg = document.getElementById("jpg");
+
+
+	option_extension_gif.addEventListener("click", function (){
+		img_settings.extension = "gif";
+		menu_gif.style.opacity = 1;
+		menu_gif.style.pointerEvents = "all";
+	})
+
+	option_extension_jpg.addEventListener("click", function (){
+		img_settings.extension = "jpg";
+		menu_gif.style.opacity = 0.5;
+		menu_gif.style.pointerEvents = "none";
+	})
+
+
+	// set initial values
+	option_border_color.value = init_border_color;
+
+	option_border_visible.addEventListener("click", function (){
+		if(!option_border_visible.checked) {
+			option_border_settings.style.pointerEvents = "none";
+			option_border_settings.style.opacity = 0.5;
+		} else {
+			option_border_settings.style.pointerEvents = "all";
+			option_border_settings.style.opacity = 1;
+		}
+	})
+
+	img_settings = {
+		extension: "gif",
+		dithering_alg: "FloydSteinberg",
+		delay: 300+'',
+		loopcount: 0+'',
+		colors: 256+'',
+		border_visible: 1,
+		border_thickness: 1,
+		border_color: init_border_color+''
+	}
+
+	btn_apply.addEventListener("click", function () {
+		console.log("apply new settings")
+		img_settings.dithering_alg = option_dithering_alg.value;
+		img_settings.colors = option_colors.value;
+		img_settings.delay = (option_delay.value*100).toString();
+		img_settings.loopcount = option_loopcount.value;
+		img_settings.border_visible = option_border_visible.checked;
+		img_settings.border_thickness = option_border_thickness.value;
+		img_settings.border_color = option_border_color.value;
+
+		console.log(img_settings)
+		
+		//menu.style.opacity = 0.5;
+		//menu.style.pointerEvents = "none";
+		reinit();
+	});
+}
+function init() {
+	canvas = document.getElementById("$CANVAS_ID");
+	anim_container = document.getElementById("$ANIM_CONTAINER_ID");
+	dom_overlay_container = document.getElementById("dom_overlay_container");
+	$CREATE_LOADER
+	$LOAD_MANIFEST
+	$PRELOAD_ASSETS
+	
+}
+
+function reinit () {
+	screenshots = [];
+	canvas.innerHTML = '';
+	screenshot_number_increment = 0;
+	init();
+}
+
+function init2() {
+	initScreenshoter();
+	initMagick();
+	initSettingsScreen();
+}
+    
+$HANDLE_FILE_LOAD_START	
+	$HANDLE_FILE_LOAD_BODY	
+$HANDLE_FILE_LOAD_END
+$HANDLE_COMPLETE_START
+	//This function is always called, irrespective of the content. You can use the variable "stage" after it is created in token create_stage.
+	$CREATE_STAGE	
+	//Registers the "tick" event listener.
+	$START_ANIMATION	    
+	//Code to support hidpi screens and responsive scaling.
+	$RESP_HIDPI	
+$HANDLE_COMPLETE_END
+$PLAYSOUND
+$SCRIPT_END
+
+<!-- write your code here -->
+<script type="module">
+
+	// --- IMAGE MAGIC CONVERT --- //
+
+
+
+
+	//import * as Magick from './magic_lib/magickApi.js';
+	import * as Magick from 'https://knicknic.github.io/wasm-imagemagick/magickApi.js';
+
+	window.initMagick = function () {
+
+		//console.log(window.devicePixelRatio)
+
+		window.MAGICK_DL = function (imgs, _s_jpg_gif) {
+				
+			let inputImages = [];
+
+			console.log("IM", imgs)
+
+			imgs.forEach(async function (img, i) {
+
+				const fetchedSourceImage = await fetch(img.src);
+				const content = new Uint8Array(await fetchedSourceImage.arrayBuffer());
+				inputImages.push({name: img.id, content})
+
+				if(imgs.length-1 == i) {
+					// last iteration, do once
+					let result, outputImage, outputImage_blob, newImage, link;
+					const resizevalue = 100/devicePixelRatio+"%";
+					const T = img_settings.border_thickness.toString();
+
+					let command;
+
+					if(_s_jpg_gif == "gif") {
+						if(img_settings.border_visible) {
+							command = [
+								"convert", 
+								"-delay", img_settings.delay, 
+								"*.png", 
+								"-dither", img_settings.dithering_alg, 
+								"-filter", "sinc", 
+								"-resize", resizevalue, 
+								"-colors", img_settings.colors, 
+								"-shave", T+"x"+T, 
+								"-bordercolor", img_settings.border_color, 
+								"-border", T, 
+								"-loop", img_settings.loopcount, 
+								"out.gif"
+							];
+						} else {
+							command = ["convert", 
+								"-delay", img_settings.delay, 
+								"*.png", 
+								"-dither", img_settings.dithering_alg, 
+								"-filter", "sinc", 
+								"-resize", resizevalue, 
+								"-colors", img_settings.colors, 
+								"-loop", img_settings.loopcount, 
+								"out.gif"
+							];
+						}
+						//const command = ["convert", "-delay", "300", "-shave", "1x1", "-bordercolor", img_settings.border_color, "-border", "1", "*", "out.gif"];
+						result = await Magick.call(inputImages, command)
+
+						outputImage = result.outputFiles[0];
+						outputImage_blob = new Blob([outputImage.buffer], {type: 'image/gif'});
+						newImage = document.getElementById(imgs[0].id)
+						newImage.src = URL.createObjectURL(outputImage_blob);
+
+						// download result image
+						link = document.createElement('a');
+						canvas.appendChild(link);
+						link.href = newImage.src;
+						link.download = prompt("Name?", canvas.clientWidth+"x"+canvas.clientHeight+".gif") || canvas.clientWidth+"x"+canvas.clientHeight+".gif";
+						link.click();
+					} else {
+						if(img_settings.border_visible) {
+							command = ["convert", "*.png", "-filter", "sinc", "-resize", resizevalue, "-shave", T+"x"+T, "-bordercolor", img_settings.border_color, "-border", T, "out.jpg"];
+						} else {
+							command = ["convert", "*.png", "-filter", "sinc", "-resize", resizevalue, "out.jpg"];
+						}
+
+						result = await Magick.call(inputImages, command);
+
+						const name_prefix = prompt("Name?", canvas.clientWidth+"x"+canvas.clientHeight) || canvas.clientWidth+"x"+canvas.clientHeight;
+						let name = name_prefix+".jpg";
+						result.outputFiles.forEach((outputImage, i) => {
+							if(result.outputFiles.length>1) {
+								name = name_prefix+"_"+(i+1)+".jpg";
+							}
+							outputImage_blob = new Blob([outputImage.buffer], {type: 'image/jpg'});
+							newImage = document.getElementById(imgs[0].id);
+							newImage.src = URL.createObjectURL(outputImage_blob);
+
+							link = document.createElement('a');
+							canvas.appendChild(link);
+							link.href = newImage.src;
+							link.download = name;
+							link.click();
+						})
+					}
+					
+
+
+					inputImages = [];
+					canvas.innerHTML = '';
+				}
+				
+			})
+		}
+	}
+</script>
+<script>
+
+
+
+
+	// --- CANVAS SCREENSHOT TO <IMG/base64> --- //
+	
+	var border = new createjs.Shape();
+	function drawBorder () {
+		if(img_settings.border_visible) {
+			var pxr = window.devicePixelRatio;
+			var w = canvas.width;
+			var h = canvas.height;
+			
+			border.graphics.clear();
+			stage.removeChild(border);
+			
+			border.graphics.setStrokeStyle(2); //thickness (in pixels)
+			border.graphics.beginStroke(img_settings.border_color);
+			border.graphics.drawRect(0, 0, w/pxr, h/pxr);
+			stage.addChild(border)
+		}
+	}
+	
+	function preventBannerClicks () {
+		var divs = document.body.getElementsByTagName('div');
+		var ahref = document.body.querySelector('a');
+		
+		for (var i = 0; i < divs.length; i++) {
+			divs[i].style.pointerEvents = "none";
+		}
+		
+		try {
+			ahref.onclick = function () {
+				return false;
+			}
+		} catch (err) {
+			//console.log('"preventClicks": No <a> elements have been found');
+		}
+	}
+	
+	var screenshot_number_increment = 0;
+	var screenshots = [];
+	function canvasScreenshotToImgTag () {
+		var cw = canvas.clientWidth;
+		var ch = canvas.clientHeight;
+			
+		screenshot_number_increment++;
+		var elem = document.createElement('img');
+		elem.id = 'canvas_screenshot_'+screenshot_number_increment+'.png';
+		elem.src = document.getElementById('canvas').toDataURL("image/png",);
+		canvas.appendChild(elem);
+		
+		screenshots.push(elem);
+	}
+
+	function stringToMagickCommand (_string_command) {
+		const arr_command = _string_command.split(" ").filter(word => {
+			return word.length>0
+		});
+		return arr_command;
+	}
+
+	function SEQUENCE_DL (imgs) {
+		//console.log(imgs[0].id);
+		const link = document.createElement('a');
+		canvas.appendChild(link);
+		imgs.forEach(img => {
+			link.href = img.src;
+			link.download = img.id;
+			link.click();
+		})
+	}
+
+	function stringToIMCommand (_str) {
+		const command = _str.split(" ").filter(word => {
+			return word.length > 0;
+		})
+		return command;
+	}
+	
+	let is_video_recording = false;
+	function makeClick (click_evt) {
+		if((click_evt.ctrlKey || click_evt.metaKey) && click_evt.shiftKey && click_evt.altKey) {
+			if(!is_video_recording) {
+				
+				if(confirm("restart animation?")) {
+					reinit();
+					setTimeout(()=>{
+						initVideoRecorder(canvas);
+						console.log("start recording video")
+						mediaRecorder.start();
+						is_video_recording = true;
+						visualizeScreenrecord(true);
+					}, 50) 
+					
+				} else {
+					initVideoRecorder(canvas);
+					console.log("start recording video")
+					mediaRecorder.start();
+					is_video_recording = true;
+					visualizeScreenrecord(true);
+				}
+				
+			} else {
+				console.log("stop recording video")
+				mediaRecorder.stop();
+				visualizeScreenrecord(false);
+				is_video_recording = false;
+			}
+		} else if ((click_evt.ctrlKey || click_evt.metaKey) && click_evt.shiftKey) {
+			SEQUENCE_DL(screenshots)
+			screenshots = [];
+		} else if (click_evt.ctrlKey || click_evt.metaKey) {
+			MAGICK_DL(screenshots, img_settings.extension);
+			screenshots = [];
+		} else if(click_evt.altKey) {
+			console.log("CLICK")
+			canvasScreenshotToImgTag();
+			visualizeScreenshot();
+		}
+	}
+
+	function visualizeScreenshot () {
+		var bg = document.getElementById("screenshoter-bg");
+		bg.classList.remove("screenshoter-bg-anim");
+		void bg.offsetWidth;
+		bg.classList.add("screenshoter-bg-anim");
+	}
+
+	function visualizeScreenrecord (visualize) {
+		var bg = document.getElementById("screenshoter-bg");
+		bg.classList.remove("screenshoter-bg-animrec");
+		void bg.offsetWidth;
+		if(visualize) {
+			bg.classList.add("screenshoter-bg-animrec");
+		}
+	}
+	
+	function initScreenshoter () {
+		createjs.Ticker.on("tick", drawBorder);
+		var screenshot_number_increment=0;
+		document.addEventListener("click", evt=> {
+			makeClick(evt);
+		});
+		//preventBannerClicks();
+	
+	}
+	
+	</script>
+
+
+
+	<script>
+
+	// --- CANVAS TO VIDEO --- //
+	
+	function initVideoRecorder(canvas) {
+		var recordedChunks = [];
+		return new Promise(function (res, rej) {
+			var stream = canvas.captureStream(createjs.Ticker.getFPS());
+			mediaRecorder = new MediaRecorder(stream, {
+				mimeType: "video/webm;codecs=vp9",
+				videoBitsPerSecond : 10000000
+			});
+			
+			//ondataavailable will fire in interval of `time || 4000 ms`
+			//mediaRecorder.start(time || 4000);
+
+			mediaRecorder.ondataavailable = function (event) {
+				recordedChunks.push(event.data);
+				// after stop `dataavilable` event run one more time
+				if (mediaRecorder.state === 'recording') {
+					mediaRecorder.stop();
+				}
+
+			}
+
+			mediaRecorder.onstop = function (event) {
+				var blob = new Blob(recordedChunks, {type: "video/webm" });
+				var url = URL.createObjectURL(blob);
+				res(url);
+
+				const link = document.createElement('a');
+				canvas.appendChild(link);
+				link.href = url;
+				link.download = prompt("Name?", canvas.clientWidth+"x"+canvas.clientHeight) || canvas.clientWidth+"x"+canvas.clientHeight;
+				link.click();
+				
+			}
+		})
+	}
+
+	</script>
+
+</head>
+<style>
+	.screenshoter-bg {
+		width: 100%;
+		height: 100%;
+		top: 0;
+		left: 0;
+		position: absolute;
+		background-color: #ffffff;
+	}
+	.screenshoter-bg-anim {
+		animation-name: animbg;
+ 		animation-duration: 0.4s;
+	}
+	.screenshoter-bg-animrec {
+		animation-name: animbgrec;
+		animation-iteration-count: infinite;
+		animation-duration: 2s;
+	}
+	@keyframes animbg {
+		from {
+			background-color: #cccccc;
+		}
+		to {
+			background-color: #ffffff;
+		}
+	}
+	@keyframes animbgrec {
+		0% {
+			background-color: rgb(255, 188, 162);
+			opacity: 0.2;
+		}
+		50% {
+			background-color: rgb(255, 188, 162);
+			opacity: 0.4;
+		}
+		100% {
+			background-color: rgb(255, 188, 162);
+			opacity: 0.2;
+		}
+	}
+</style>
+<body onload="init(); init2();" style="margin:0px;">
+	<div class="screenshoter-bg" id="screenshoter-bg"></div>
+	<div id="$ANIM_CONTAINER_ID" style="background-color:$BG; width:$WTpx; height:$HTpx;">
+		<canvas id="$CANVAS_ID" width="$WT" height="$HT" style="position: absolute; display: block; background-color:$BG;"></canvas>
+		<div id="dom_overlay_container" style="pointer-events:none; overflow:hidden; width:$WTpx; height:$HTpx; position: absolute; left: 0px; top: 0px; display: block;">
+		</div>
+	</div>
+	<div class="help" style="position: absolute;">
+		<br>
+		<b>'ALT+CLICK'</b> - screenshot 
+		<br><b>'CTRL(CMD)+CLICK'</b> - download <b>.gif</b> 
+		<br><b>'CTRL(CMD)+SHIFT+CLICK'</b> - download <b>.png</b> sequence
+		<br><b>'CTRL(CMD)+SHIFT+ALT+CLICK'</b> - start/stop <b>.webm</b> video recording</b>
+	</div>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+
+
+	<div class="menu-container" id="menu-container" style="display: block; position: absolute;">
+		<p>Choose extension:</p>
+		<div>
+			<input type="radio" id="jpg" name="extension" value="jpg">
+			<label for="jpg">jpg</label>
+		</div>
+		<div>
+			<input type="radio" id="gif" name="extension" value="gif" checked>
+			<label for="gif">gif</label>
+		</div>
+		<br>
+		<br>
+		<label for="gif-border">Border</label>
+		<input type="checkbox" id="gif-border" checked="true" name="gif-border">
+		<div id="border-settings">
+			<br>
+			<label for="gif-border-thickness">Border thickness</label>
+			<br>
+			<input type="number" name="gif-border-thickness" value="1" id="gif-border-thickness">
+			<br>
+			<label for="gif-border-color">Border color</label>
+			<br>
+			<input type="color" name="gif-border-color" value="#000000" id="gif-border-color">
+		</div>
+		<br>
+		<div id="gif-settings">
+			<label for="colors">Colors</label>
+			<input type="number" id="colors" value="256">
+			<br>
+			<br>
+			<label for="dithering">Dithering Algorithm</label>
+			<select name="dithering-alg" id="dithering-algorithm">
+				<option value="FloydSteinberg" selected="selected">FloydSteinberg</option>
+				<option value="Riemersma">Riemersma</option>
+				<option value="None">None</option>
+			</select>
+			<br>
+			<br>
+			<label for="delay">Delay</label>
+			<br>
+			<input type="number" name="delay" value="3" id="delay">
+			<br>
+			<label for="loopcount">Loop count (0 is infinite)</label>
+			<br>
+			<input type="number" name="loopcount" value="0" id="loopcount">
+			<br>
+			<br>
+		</div>
+		<button id="continue">Apply and restart</button>
+	</div>
+</body>
+</html>
